@@ -2,17 +2,17 @@
 
 Pipeline for calling Single Nucleotide Polymorphisms (SNPs). The pipeline is written in bash.
 
-##Variant/SNP calling pipeline steps:
+## Variant/SNP calling pipeline steps:
 1.	Align FASTQ reads to a reference genome to create an alignment file - Mapping step
 2.	Processing the alignment file (file format conversion, sorting, alignment improvement) - Improvement step
 3.	Calling the variants - Variant Calling step
 
-##Pipeline Requirements:
+## Pipeline Requirements:
 1.	[bwa](https://github.com/lh3/bwa) for the alignment
 2.	[samtools/HTS](http://www.htslib.org/) package for processing and calling variants
 3.	[GATK](https://gatk.broadinstitute.org/hc/en-us) for improving the alignment. You must use GATK v3.7.0, available on the Archived version page
 
-##Input command line options:
+## Input command line options:
 -a	Input reads file – pair 1
 -b	Input reads file – pair 2
 -r	Reference genome file
@@ -34,4 +34,4 @@ Pipeline for calling Single Nucleotide Polymorphisms (SNPs). The pipeline is wri
 ./snp_pipeline.bash -a <input reads file -pair1> -b <input reads file -pair2> -r <reference genome file> -f <Mills file> -o <output file>
 
 ##Output file:
-VCF File 
+VCF File
