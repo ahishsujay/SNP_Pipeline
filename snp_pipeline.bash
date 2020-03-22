@@ -1,7 +1,6 @@
 #!/bin/bash
 
 get_input () {
-	# Function for doing your getopts
 	while getopts "a:b:r:eo:f:zvih" options
 	do
 		case "$options" in
@@ -29,19 +28,17 @@ return 0
 }
 
 check_files () {
-	# Function for checking for presence of input files, reference genome,
-	# and the output VCF file
-	#
-	# Input: File locations (string)
-	# Output: True, if checks pass; False, if checks fail (bool)
+	#Function for checking for presence of input files, reference genome, and the output VCF file
+	#Input: File locations (string)
+	#Output: True-if checks pass; False-if checks fail (bool)
 
-	## If input1 exists or doesn't exist
+	#If input1 exists or doesn't exist:
 	if (( v ))
 	then
 		echo "Checking input file 1, input file 2, reference genome and mills file."
 	fi
 
-	## If input1 exists or dosn't exist
+	#If input1 exists or dosn't exist:
 	if [ -e "$reads1" ]
 	then
 		echo "Your input file1 is read."
@@ -51,7 +48,7 @@ check_files () {
 		return $flag
 	fi
 
-	## If input2 exists or doesn't exist
+	#If input2 exists or doesn't exist:
 	if [ -e "$reads2" ]
 	then
 		echo "Your input file2 is read."
@@ -62,7 +59,7 @@ check_files () {
 		return $flag
 	fi
 
-	## If reference genome exists or doesn't exist
+	#If reference genome exists or doesn't exist:
 	if [ -e "$ref" ]
 	then
 		echo "Your reference genome exists."
@@ -72,7 +69,7 @@ check_files () {
 		return $flag
 	fi
 
-	## If mills file exists or doesn't exist
+	#If mills file exists or doesn't exist:
 	if [ -e "$millsFile" ]
 	then
 		echo "Mills File exists."
@@ -82,7 +79,7 @@ check_files () {
 		return $flag
 	fi
 
-	##If $output file exists
+	#If $output file exists:
 	if [ -f "$(pwd)"/output/"$output" ]
 	then
 		echo "The output file already exists."
@@ -99,14 +96,14 @@ return 0
 }
 
 prepare_temp () {
-	# Preparing your temporary directory
+	#Preparing temporary directory:
 
 	if (( v ))
 	then
 		echo "Preparing temporary directory and indexing the reference genome given."
 	fi
 
-	## If .bwt file already exists.
+	#If .bwt file already exists:
 	if [ -e "${ref}".bwt ]
 	then
 		echo "File already exists. Continuing..."
@@ -120,8 +117,7 @@ return 0
 
 
 mapping () {
-	# Function for the mapping step of the SNP-calling pipeline
-	#
+	#Function for the mapping step of the SNP-calling pipeline
 	# Input: File locations (string), Verbose flag (bool)
 	# Output: File locations (string)
 
@@ -130,7 +126,7 @@ mapping () {
 		echo "Mapping of pipeline is running."
 	fi
 
-	## If .sam file already exists
+	#If .sam file already exists:
 	if [ -e "$(pwd)"/tmp/lane.sam ]
 	then
 		echo "File already exists. Continuing..."
@@ -138,7 +134,7 @@ mapping () {
 	bwa mem -R '@RG\tID:foo\tSM:bar\tLB:library1' "$ref" "$reads1" "$reads2" > "$(pwd)"/tmp/lane.sam
 	fi
 
-	## If .bam already exists
+	#If .bam already exists:
 	if [ -e "$(pwd)"/lane_fixmate.bam ]
 	then
 		echo "File already exists. Continuing..."
@@ -146,7 +142,7 @@ mapping () {
 	samtools fixmate -O bam "$(pwd)"/tmp/lane.sam "$(pwd)"/tmp/lane_fixmate.bam
 	fi
 
-	## If sorted bam file exists
+	#If sorted bam file exists:
 	if [ -e "$(pwd)"/tmp/lane_sorted.bam ]
 	then
 		echo "File already exists. Continuing..."
@@ -160,17 +156,16 @@ return 0
 
 
 improvement () {
-	# Function for improving the number of miscalls
-	#
-	# Input: File locations (string)
-	# Output: File locations (string)
+	#Function for improving the number of miscalls
+	#Input: File locations (string)
+	#Output: File locations (string)
 
 	if (( v ))
 	then
 		echo "Fasta file for indexing is being prepared. Dictionary being created."
 	fi
 
-	## If .fai file already exists.
+	#If .fai file already exists:
 	if [ -e "${ref}".fai ]
 	then
 		echo "File already exists. Continuing..."
@@ -178,7 +173,7 @@ improvement () {
 		samtools faidx "$ref" ###(For creating chr17.fa.fai file)
 	fi
 
-	## If dict file already exists.
+	#If dict file already exists:
 	if [ -e "$(pwd)"/tmp/ref_dict.dict ]
 	then
 		echo "File already exists. Continuing..."
@@ -186,7 +181,7 @@ improvement () {
 		samtools dict "$ref" -o "$(pwd)"/tmp/ref_dict.dict ###(For creating dict file)
 	fi
 
-	## If indexed bam file exists
+	#If indexed bam file exists:
 	if (( index ))
 	then
 		if [ -e "$(pwd)"/tmp/lane_sorted.bam.bai ]
@@ -197,7 +192,7 @@ improvement () {
 		fi
 	fi ###(For creating indexed bam file)
 
-	##If user wants to perform realignment and types -e option
+	#If user wants to perform realignment and types -e option:
 	if (( realign ))
 	then
 		if (( v ))
@@ -215,14 +210,12 @@ return 0
 }
 
 call_variants () {
-	# Function to call variants
-	#
-	# Input: File locations (string)
-	# Ouput: None
+	#Function to call variants
+	#Input: File locations (string)
+	#Ouput: None
 
 	#mpileup to create BCF file
-	##If realignment is performed
-
+	#If realignment is performed:
 	if (( v ))
 	then
 		echo "Call variants of pipeline is running."
@@ -250,12 +243,11 @@ return 0
 }
 
 main() {
-	# Function that defines the order in which functions will be called
-	# You will see this construct and convention in a lot of structured code.
-	# Add flow control as you see appropriate
+	#Function that defines the order in which functions will be called:
+
 	get_input "$@"
 
-	## Exit if the file's don't exist
+	#Exit if the file's don't exist:
 	check_files
 	if [ "$flag" == "1" ]
 	then
